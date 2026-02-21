@@ -71,9 +71,7 @@ base_retriever = vectorstore.as_retriever(
     search_kwargs={"k": 10},
 )
 
-multi_retriever = MultiQueryRetriever.from_llm(
-    retriever=base_retriever, llm=llm
-)
+multi_retriever = MultiQueryRetriever.from_llm(retriever=base_retriever, llm=llm)
 
 
 def deduplicate_docs(docs):
@@ -95,9 +93,7 @@ def retrieve_and_format(question: str) -> str:
     for i, doc in enumerate(docs, 1):
         source = doc.metadata.get("source", "unknown")
         page = doc.metadata.get("page", "?")
-        formatted.append(
-            f"[Source {i}: {source}, Page {page}]\n{doc.page_content}"
-        )
+        formatted.append(f"[Source {i}: {source}, Page {page}]\n{doc.page_content}")
     return "\n\n---\n\n".join(formatted)
 
 
