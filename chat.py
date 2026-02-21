@@ -66,14 +66,52 @@ vectorstore = PineconeVectorStore(
 print(f"\n[4/4] Building RAG chain...")
 llm = ChatGroq(temperature=0, model_name=LLM_MODEL_NAME, api_key=groq_api_key)
 
-retriever = MultiQueryRetriever.from_llm(
-    retriever=vectorstore.as_retriever(search_kwargs={"k": 5}), llm=llm
+base_retriever = vectorstore.as_retriever(
+    search_type="similarity",
+    search_kwargs={"k": 10},
 )
 
-prompt_template = """
-Answer strictly using the provided context.
-If the answer is not present, say:
-"The provided context does not contain the answer to this question."
+multi_retriever = MultiQueryRetriever.from_llm(
+    retriever=base_retriever, llm=llm
+)
+
+
+def deduplicate_docs(docs):
+    """Remove duplicate chunks returned by MultiQueryRetriever."""
+    seen = set()
+    unique = []
+    for doc in docs:
+        key = doc.page_content[:200]
+        if key not in seen:
+            seen.add(key)
+            unique.append(doc)
+    return unique
+
+
+def retrieve_and_format(question: str) -> str:
+    docs = multi_retriever.invoke(question)
+    docs = deduplicate_docs(docs)
+    formatted = []
+    for i, doc in enumerate(docs, 1):
+        source = doc.metadata.get("source", "unknown")
+        page = doc.metadata.get("page", "?")
+        formatted.append(
+            f"[Source {i}: {source}, Page {page}]\n{doc.page_content}"
+        )
+    return "\n\n---\n\n".join(formatted)
+
+
+prompt_template = """You are a highly accurate CitiBank document assistant.
+Your job is to answer questions using ONLY the provided context extracted from official CitiBank PDF documents.
+
+Instructions:
+1. Read ALL the context carefully before answering.
+2. Synthesize information from multiple sources when relevant.
+3. Quote or closely paraphrase the original text to support your answer.
+4. Cite the source document and page number, e.g. (Source: filename.pdf, Page 3).
+5. If the context does not contain enough information, say:
+   "The provided documents do not contain sufficient information to answer this question."
+6. Do NOT make up information or use outside knowledge.
 
 CONTEXT:
 {context}
@@ -87,7 +125,7 @@ ANSWER:
 prompt = ChatPromptTemplate.from_template(prompt_template)
 
 rag_chain = (
-    {"context": retriever, "question": RunnablePassthrough()}
+    {"context": retrieve_and_format, "question": RunnablePassthrough()}
     | prompt
     | llm
     | StrOutputParser()

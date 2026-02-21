@@ -1,2 +1,24 @@
+# ── Environment ──────────────────────────
 .env
+.env.*
+
+# ── Python ───────────────────────────────
+__pycache__/
+
+
+# ── Virtual Environment ─────────────────
+.venv/
+
+
+# ── Vector / DB stores ──────────────────
 chroma_db/
+
+
+
+# ── OS files ────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ────────────────────────────────
+*.log

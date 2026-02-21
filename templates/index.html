@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CitiBank RAG Assistant</title>
+  <meta name="description"
+    content="Ask questions about CitiBank documents using AI-powered retrieval augmented generation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+
+  <!-- ── Particle Background ─────────────────────────── -->
+  <canvas id="particles"></canvas>
+
+  <!-- ── Header ────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo-area">
+        <div class="logo-icon">citi</div>
+        <div class="logo-text">
+          <h1>CitiBank RAG Assistant</h1>
+          <span>AI-Powered Document Intelligence</span>
+        </div>
+      </div>
+      <div class="header-badge">
+        <div class="badge-dot"></div>
+        System Online
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Stats Bar ─────────────────────────────────── -->
+  <div class="stats-bar">
+    <div class="stats-card">
+      <div class="stat-item">
+        <div class="stat-icon blue">📄</div>
+        <div class="stat-info">
+          <span class="stat-value">{{ pdf_count }}</span>
+          <span class="stat-label">PDFs Loaded</span>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-icon red">🧠</div>
+        <div class="stat-info">
+          <span class="stat-value">Llama 4</span>
+          <span class="stat-label">LLM Model</span>
+        </div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-icon green">🔗</div>
+        <div class="stat-info">
+          <span class="stat-value">Pinecone</span>
+          <span class="stat-label">Vector DB</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Chat ──────────────────────────────────────── -->
+  <main class="main">
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages">
+        <div class="welcome">
+          <div class="welcome-icon">🏦</div>
+          <h2>Welcome to CitiBank RAG Assistant</h2>
+          <p>Ask any question about the <strong>{{ pdf_count }} loaded CitiBank documents</strong> — credit cards, terms
+            &amp; conditions, FAQs, policies, and more.</p>
+          <div class="suggestions">
+            <button class="suggestion-chip">How can I use my credit card reward certificate</button>
+            <button class="suggestion-chip">How do I confirm that the total value of my credit card reward
+              certificate is accurate?</button>
+            <button class="suggestion-chip">Customer rights policy</button>
+            <button class="suggestion-chip">How is the one-time passcode (OTP) delivered to the cardholder?</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <input type="text" id="questionInput" placeholder="Ask a question about CitiBank documents..."
+          autocomplete="off" />
+        <button id="sendBtn" title="Send">➤</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Footer ────────────────────────────────────── -->
+  <footer class="footer">
+    © 2026 CitiBank RAG System · Powered by Pinecone + Groq + LangChain
+  </footer>
+
+  <script src="/static/script.js"></script>
+</body>
+
+</html>
