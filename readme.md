@@ -4,6 +4,10 @@ An AI-powered Retrieval Augmented Generation (RAG) system for querying CitiBank 
 
 > Data source: [CitiBank Business FAQs](https://businessaccess.citibank.citigroup.com/cbusol/faq/faq.action#12)
 
+## 🖥️ UI Preview
+
+![CitiBank RAG Assistant UI](ui_screenshot.png)
+
 ---
 
 ## 🔧 Tech Stack
