@@ -1,12 +1,11 @@
 import os
 import time
 
-from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS
-
 import camelot
 import fitz
 from dotenv import load_dotenv
+from flask import Flask, jsonify, render_template, request
+from flask_cors import CORS
 from langchain.retrievers.multi_query import MultiQueryRetriever
 from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -84,15 +83,36 @@ if total_vectors == 0:
             for i, page in enumerate(doc):
                 text = page.get_text()
                 if text.strip():
-                    docs.append(Document(page_content=text, metadata={"source": filename, "page": i + 1, "type": "text"}))
+                    docs.append(
+                        Document(
+                            page_content=text,
+                            metadata={
+                                "source": filename,
+                                "page": i + 1,
+                                "type": "text",
+                            },
+                        )
+                    )
         except Exception as e:
             print(f"  Error reading {pdf_path}: {e}")
         try:
             tables = camelot.read_pdf(pdf_path, pages="all")
             for i, table in enumerate(tables):
                 df = table.df.replace("\n", " ", regex=True)
-                table_text = f"Table {i + 1} (Page {table.parsing_report['page']}):\n" + df.to_string(index=False)
-                docs.append(Document(page_content=table_text, metadata={"source": filename, "page": table.parsing_report["page"], "type": "table"}))
+                table_text = (
+                    f"Table {i + 1} (Page {table.parsing_report['page']}):\n"
+                    + df.to_string(index=False)
+                )
+                docs.append(
+                    Document(
+                        page_content=table_text,
+                        metadata={
+                            "source": filename,
+                            "page": table.parsing_report["page"],
+                            "type": "table",
+                        },
+                    )
+                )
         except Exception:
             pass
         return docs
@@ -127,9 +147,7 @@ base_retriever = vectorstore.as_retriever(
     search_kwargs={"k": 10},
 )
 
-multi_retriever = MultiQueryRetriever.from_llm(
-    retriever=base_retriever, llm=llm
-)
+multi_retriever = MultiQueryRetriever.from_llm(retriever=base_retriever, llm=llm)
 
 
 def deduplicate_docs(docs):
@@ -151,9 +169,7 @@ def retrieve_and_format(question: str) -> str:
     for i, doc in enumerate(docs, 1):
         source = doc.metadata.get("source", "unknown")
         page = doc.metadata.get("page", "?")
-        formatted.append(
-            f"[Source {i}: {source}, Page {page}]\n{doc.page_content}"
-        )
+        formatted.append(f"[Source {i}: {source}, Page {page}]\n{doc.page_content}")
     return "\n\n---\n\n".join(formatted)
 
 
@@ -212,13 +228,15 @@ def ask():
 
 @app.route("/api/info", methods=["GET"])
 def info():
-    return jsonify({
-        "pdf_count": PDF_COUNT,
-        "pdf_names": PDF_NAMES,
-        "index_name": INDEX_NAME,
-        "llm_model": LLM_MODEL_NAME,
-        "embedding_model": EMBEDDING_MODEL_NAME,
-    })
+    return jsonify(
+        {
+            "pdf_count": PDF_COUNT,
+            "pdf_names": PDF_NAMES,
+            "index_name": INDEX_NAME,
+            "llm_model": LLM_MODEL_NAME,
+            "embedding_model": EMBEDDING_MODEL_NAME,
+        }
+    )
 
 
 if __name__ == "__main__":
